@@ -195,7 +195,7 @@ onTap: () {
 },
 ```
 
-Dengan begitu, selesai sudah pembuatan proyek Flutter baru. Saya menjalankan proyek menggunakan Google Chrom dengan perintah berikut ini.
+Dengan begitu, selesai sudah pembuatan proyek Flutter baru. Saya menjalankan proyek menggunakan Google Chrome dengan perintah berikut ini.
 ```
 flutter run -d chrome
 ```
