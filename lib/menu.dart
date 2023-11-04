@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 class MyHomePage extends StatelessWidget {
   MyHomePage({Key? key}) : super(key: key);
 
-  final List<ShopItem> items = [
-    ShopItem("Lihat Item", Icons.checklist),
-    ShopItem("Tambah Item", Icons.add_shopping_cart),
-    ShopItem("Logout", Icons.logout),
+  final List<AlbumItem> items = [
+    AlbumItem("Lihat Item", Icons.checklist),
+    AlbumItem("Tambah Item", Icons.add_box_outlined),
+    AlbumItem("Logout", Icons.logout),
   ];
 
   // This widget is the home page of your application. It is stateful, meaning
@@ -59,9 +59,9 @@ class MyHomePage extends StatelessWidget {
                   mainAxisSpacing: 10,
                   crossAxisCount: 3,
                   shrinkWrap: true,
-                  children: items.map((ShopItem item) {
+                  children: items.map((AlbumItem item) {
                     // Iterasi untuk setiap item
-                    return ShopCard(item);
+                    return AlbumCard(item);
                   }).toList(),
                 ),
               ],
@@ -72,17 +72,17 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
-class ShopItem {
+class AlbumItem {
   final String name;
   final IconData icon;
 
-  ShopItem(this.name, this.icon);
+  AlbumItem(this.name, this.icon);
 }
 
-class ShopCard extends StatelessWidget {
-  final ShopItem item;
+class AlbumCard extends StatelessWidget {
+  final AlbumItem item;
 
-  const ShopCard(this.item, {super.key}); // Constructor
+  const AlbumCard(this.item, {super.key}); // Constructor
 
   @override
   Widget build(BuildContext context) {
