@@ -3,7 +3,9 @@
 **Tugas - Pemrograman Berbasis Platform - Kelas D**
 > **TiKoes** (**T**eknologi **I**nventaris pada album **Koes** Plus) adalah aplikasi *mobile* untuk mengelola penyimpanan berbagai macam album Koes Plus.
 
-# Tugas 7: Elemen Dasar Flutter
+<details>
+<summary> <b> Tugas 7: Elemen Dasar Flutter </b> </summary>
+
 ## *Stateless Widget* dan *Stateful Widget*
 Secara singkat,
 * **Stateless Widget**: *Widget* yang tidak dapat berubah setelah dibuat.
@@ -203,4 +205,292 @@ flutter run -d chrome
 ## Referensi
 * TOPSTECHNOLOGIES - [Mastering Stateless and Stateful Widgets in Flutter & The Best Flutter Course](https://www.tops-int.com/blog/mastering-stateless-and-stateful-widgets-in-flutter-the-best-flutter-course)
 * PBP Ganjil 23/24 - [Tutorial 6: Pengantar Flutter](https://pbp-fasilkom-ui.github.io/ganjil-2024/docs/tutorial-6)
-* Tim Dosen PBP - [Introduction to Dart Programming Language and Flutter Framework](https://scele.cs.ui.ac.id/pluginfile.php/197253/mod_resource/content/1/08%20-%20Intro%20to%20Dart%20Programming%20and%20Flutter%20Framework.pdf)
+* Tim Dosen PBP - Introduction to Dart Programming Language and Flutter Framework dan Layout and Forms
+
+</details>
+
+# Tugas 8: Flutter Navigation, Layouts, Forms, and Input Elements
+## `Navigator.push()` dan `Navigator.pushReplacement()`
+Perbedaan utama antara kedua metode ini terletak pada dampaknya terhadap *route* yang berada di atas *stack*.
+* **`push()`** **menambahkan** sebuah *route* baru di atas *route* yang sudah ada di atas *stack*.
+
+Contoh penggunaan `push()` pada tugas:
+```dart
+if (item.name == "Lihat Album") {
+  Navigator.push(
+    context, 
+    MaterialPageRoute(
+      builder: (context) => AlbumListPage(albums: albums,),
+    ),
+  );
+}
+```
+
+* **`pushReplacement()`** **menggantikan** *route* yang sudah ada di atas *stack* dengan *route* baru.
+
+Contoh penggunaan `pushReplacement()` pada tugas:
+```dart
+ListTile(
+  leading: const Icon(Icons.home_outlined),
+  title: const Text('Halaman Utama'),
+  onTap: () {
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MyHomePage(),
+        ));
+  },
+),
+```
+
+## Widget yang digunakan
+| Widget | Fungsi | Penggunaan dalam File |
+|--|--|--|
+| `Drawer` | Menyediakan menu navigasi | Digunakan dalam `menu.dart` sebagai bagian dari `LeftDrawer` untuk menampilkan menu navigasi disebelah kiri layar. |
+| `Form` | Mengelola formulir dan validasi input | Digunakan dalam `albumlist_form.dart` sebagai kerangka formulir untuk menambahkan album baru. |
+| `GlobalKey<FormState>` | Kunci global untuk mengidentifikasi dan mengakses status formulir | Digunakan dalam `albumlist_form.dart` untuk mengelola status formulir. |
+| `TextFormField` | Menyediakan area input teks | Digunakan dalam `albumlist_form.dart` untuk menerima input pengguna terkait nama, harga, dan deskripsi album. |
+| `AlertDialog` | Menampilkan dialog sederhana dengan judul dan konten | Digunakan dalam `albumlist_form.dart` untuk memberikan konfirmasi bahwa album berhasil tersimpan. |
+| `ElevatedButton` | Membuat tombol dengan latar belakang berwarna dan memiliki efek *elevate* | Digunakan dalam `albumlist_form.dart` sebagai tombol untuk menyimpan album baru. |
+
+
+## Elemen Input pada Form
+Widget yang digunakan untuk menerima input pada tugas kali ini yaitu `TextFormField`. Alasannya adalah karena `TextFormField` dapat menerima jawaban bebas sesuai pengguna ketik.
+Elemen yang digunakan menggunakan widget *form* tersebut yaitu:
+* Nama, untuk menerima judul album dari pengguna.
+* Harga, untuk menerima harga album dari pengguna.
+* Deskripsi, untuk menerima deskripsi album dari pengguna.
+* Tautan Gambar, untuk menerima tautan gambar album dari pengguna.
+
+Keempat elemen ini nantinya akan ditampilkan dibagian `Lihat Album`.
+
+## *Clean Architecture* pada Flutter
+*Clean Architecture* adalah suatu prinsip dalam pengembangan *app* yang memisahkan kepentingan dalam menciptakan kode yang modular, *scalable*, dan dapat diuji. *Clean Architecture* terdiri dari beberapa *layer*, yaitu:
+* Presentation atau UI (`screens`)
+Berisi komponen antarmuka pengguna, seperti widget, layar, dan tampilan dan bertanggung jawab untuk menangani interaksi pengguna dan merender antarmuka pengguna.
+* Domain (`domain`)
+Mengatur logika bagaimana entitas atau elemen dalam aplikasi berinteraksi dan berperilaku.
+* Data (`data`)
+Bertanggung jawab atas pengambilan dan penyimpanan data. 
+
+Pada tutorial 7, kita diajarkan melakukan *refactoring file*. Menurut saya, ini merupakan penerapan *clean architecture* yaitu dengan melakukan pemisahan *layer* presentasi (`screens`).
+
+## Implementasi Tugas
+### Membuat Halaman Formulir
+1. Pertama saya membuat berkas baru `albumlist_form.dart` di dalam folder `lib/screens`.
+2. Tambahkan kode berikut pada berkas tersebut.
+```dart
+import 'package:flutter/material.dart';
+import 'package:tikoes/widgets/left_drawer.dart';
+import 'package:tikoes/data/album_model.dart';
+
+class AlbumFormPage extends StatefulWidget {
+    const AlbumFormPage({super.key});
+
+    @override
+    State<AlbumFormPage> createState() => _AlbumFormPageState();
+}
+
+class _AlbumFormPageState extends State<AlbumFormPage> {
+  final _formKey      = GlobalKey<FormState>();   // Handler dari form state, validasi form, dan penyimpanan form
+  String _name        = "";
+  int    _price       = 0;
+  String _description = "";
+  String _image       = "";
+  @override
+  Widget build(BuildContext context) {
+      return Scaffold(
+        appBar: AppBar(
+          // ...
+        ),
+        /*
+        <!>--- Tambahkan drawer disini ---<!>
+        */
+        body: Form(     // Wadah untuk beberapa input field widget
+          key: _formKey,
+          child: SingleChildScrollView(     // Membuat child widget yang dapat di scroll
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      hintText: "Nama Album",
+                      labelText: "Nama Album",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
+                    ),
+                    onChanged: (String? value) {
+                      setState(() {
+                        _name = value!;
+                      });
+                    },
+                    /* 
+                    Validasi untuk input tidak boleh kosong dan harus 
+                    berisi tipe data yang sesuai dengan variabel model
+                    */
+                    validator: (String? value) {
+                      if (value == null || value.isEmpty) {
+                        return "Nama tidak boleh kosong!";
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                /*
+                ...
+                Input harga, deskripsi, dan tautan gambar
+                ...
+                */                
+                Align(      // Tombol Save
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.orange),
+                      ),
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          albums.add(Album(_name, _price, _description, _image));
+                          // Pop-up jika tombol Save ditekan dan input valid
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text('Album berhasil tersimpan'),
+                                content: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Nama: $_name'),
+                                      Text('Harga: $_price'),
+                                      Text('Deskripsi: $_description')
+                                    ],
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    child: const Text('OK'),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                          _formKey.currentState!.reset();
+                        }
+                      },
+                      child: const Text(
+                        "Save",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ]
+            ),
+          ),
+        ),
+      );
+  }
+}
+```
+3. Terakhir, jangan lupa untuk mengarahkan pengguna ke halaman form ketika menekan tombol `Tambah Album` pada halaman utama. Saya menambahkan kode berikut ini pada fungsi `onTap()` di berkas `lib/widgets/album_card.dart`.
+```dart
+...
+else if (item.name == "Tambah Album") {
+  // Melakukan navigasi ke MaterialPageRoute yang mencakup AlbumFormPage.
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const AlbumFormPage(),
+    ),
+  );
+}
+...
+```
+
+### Menambahkan Drawer
+1. Saya membuat berkas baru `left_drawer.dart` pada folder `lib/widgets`.
+2. Tambahkan kode dibawah ini.
+```dart
+import 'package:flutter/material.dart';
+import 'package:tikoes/screens/menu.dart';
+import 'package:tikoes/screens/albumlist_form.dart';
+
+class LeftDrawer extends StatelessWidget {
+  const LeftDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.orange,
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'Tikoes',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                Padding(padding: EdgeInsets.all(10)),
+                Text("Catat seluruh albumu di sini!",
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w100,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home_outlined),
+            title: const Text('Halaman Utama'),
+            // Bagian redirection ke MyHomePage
+            onTap: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MyHomePage(),
+                  ));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.add_box_outlined),
+            title: const Text('Tambah Produk'),
+            // Bagian redirection ke AlbumFormPage
+            onTap: () {
+              Navigator.pushReplacement(
+                context, 
+                MaterialPageRoute(builder: (context) => const AlbumFormPage())
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+## Referensi
+* PBP Ganjil 23/24 - [Tutorial 7: Flutter Navigation, Layouts, Forms, and Input Elements](https://pbp-fasilkom-ui.github.io/ganjil-2024/docs/tutorial-7)
+* Tim Dosen PBP - Navigation, Networking, and Integration
+* Samra Khan - [Flutter — Clean Architecture](https://medium.com/@samra.sajjad0001/flutter-clean-architecture-5de5e9b8d093)

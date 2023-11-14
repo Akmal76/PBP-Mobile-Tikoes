@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:tikoes/widgets/left_drawer.dart';
+import 'package:tikoes/widgets/album_card.dart';
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({Key? key}) : super(key: key);
 
   final List<AlbumItem> items = [
-    AlbumItem("Lihat Item", Icons.checklist),
-    AlbumItem("Tambah Item", Icons.add_box_outlined),
-    AlbumItem("Logout", Icons.logout),
+    AlbumItem("Lihat Album", Icons.checklist, Colors.orange.shade600),
+    AlbumItem("Tambah Album", Icons.add_box_outlined, Colors.orange.shade700),
+    AlbumItem("Logout", Icons.logout, Colors.orange.shade800),
   ];
 
   // This widget is the home page of your application. It is stateful, meaning
@@ -25,12 +27,13 @@ class MyHomePage extends StatelessWidget {
           title: const Text(
             'Tikoes',
             style: TextStyle(
-              color: Colors.white,
               fontWeight: FontWeight.bold
             ),
           ),
           backgroundColor: Colors.orange.shade800,
+          foregroundColor: Colors.white,
         ),
+        drawer:  const LeftDrawer(),
         body: SingleChildScrollView(
           // Widget wrapper yang dapat discroll
           child: Padding(
@@ -69,57 +72,5 @@ class MyHomePage extends StatelessWidget {
           ),
         ),
       );
-  }
-}
-
-class AlbumItem {
-  final String name;
-  final IconData icon;
-
-  AlbumItem(this.name, this.icon);
-}
-
-class AlbumCard extends StatelessWidget {
-  final AlbumItem item;
-
-  const AlbumCard(this.item, {super.key}); // Constructor
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color:Colors.orange.shade600,
-      child: InkWell(
-        // Area responsive terhadap sentuhan
-        onTap: () {
-          // Memunculkan SnackBar ketika diklik
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(
-                content: Text("Kamu telah menekan tombol ${item.name}!")));
-        },
-        child: Container(
-          // Container untuk menyimpan Icon dan Text
-          padding: const EdgeInsets.all(8),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  item.icon,
-                  color: Colors.white,
-                  size: 30.0,
-                ),
-                const Padding(padding: EdgeInsets.all(3)),
-                Text(
-                  item.name,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tikoes/menu.dart';
+import 'package:tikoes/screens/menu.dart';
 
 void main() {
   runApp(const MyApp());
