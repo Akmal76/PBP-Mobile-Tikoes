@@ -209,7 +209,9 @@ flutter run -d chrome
 
 </details>
 
-# Tugas 8: Flutter Navigation, Layouts, Forms, and Input Elements
+<details>
+<summary> <b> Tugas 8: Flutter Navigation, Layouts, Forms, and Input Elements </b> </summary>
+
 ## `Navigator.push()` dan `Navigator.pushReplacement()`
 Perbedaan utama antara kedua metode ini terletak pada dampaknya terhadap *route* yang berada di atas *stack*.
 * **`push()`** **menambahkan** sebuah *route* baru di atas *route* yang sudah ada di atas *stack*.
@@ -243,7 +245,7 @@ ListTile(
 ),
 ```
 
-## Widget yang digunakan
+## Widget yang Digunakan
 | Widget | Fungsi | Penggunaan dalam File |
 |--|--|--|
 | `Drawer` | Menyediakan menu navigasi | Digunakan dalam `menu.dart` sebagai bagian dari `LeftDrawer` untuk menampilkan menu navigasi disebelah kiri layar. |
@@ -494,3 +496,143 @@ class LeftDrawer extends StatelessWidget {
 * PBP Ganjil 23/24 - [Tutorial 7: Flutter Navigation, Layouts, Forms, and Input Elements](https://pbp-fasilkom-ui.github.io/ganjil-2024/docs/tutorial-7)
 * Tim Dosen PBP - Navigation, Networking, and Integration
 * Samra Khan - [Flutter — Clean Architecture](https://medium.com/@samra.sajjad0001/flutter-clean-architecture-5de5e9b8d093)
+
+</details>
+
+# Tugas 9: Integrasi Layanan Web Django dengan Aplikasi Flutter
+
+## Pengambilan Data JSON Tanpa Model
+**Apakah bisa kita melakukan pengambilan data JSON tanpa membuat model terlebih dahulu?**
+Ya bisa, kita dapat mengakalinya dengan menggunakan sebuah variabel yang menyimpan sebuah *dictionary* berisi data.
+**Apakah hal tersebut lebih baik daripada membuat model sebelum melakukan pengambilan data JSON?**
+Tidak, justru model mempermudah kita dalam melakukan pengambilan data karena dengan model kita dapat memastikan suatu objek memiliki semua nilai atribut pada kelas dibanding dengan *dictionary* yang bisa saja kita melewatkan suatu atribut.
+
+## `CookieRequest`
+Salah satu *class* pada *package* `pbp_django_auth.dart`.
+### Fungsi
+Dilihat dari isi *class*-nya, menurut saya, fungsi dari *class* `CookieRequest` ini yaitu:
+* Menyediakan fungsi untuk inisialisasi sesi, login, dan logout yang memungkinkan aplikasi untuk melacak status login dan sesi pengguna.
+* Cookies berupa informasi sesi tersebut disimpan secara lokal.
+* Melakukan permintaan HTTP dengan metode GET dan POST.
+## `CookieRequest` pada Semua Komponen Aplikasi
+`CookieRequest` perlu dibagikan ke semua komponen di aplikasi Flutter agar status login atau sesi (cookies) **konsisten**. Jadi, jika status login atau sesi diubah dalam suatu komponen atau aplikasi, maka di komponen atau aplikasi lain akan berubah juga.
+
+## Mekanisme Pengambilan Data JSON
+Berikut adalah mekanisme pengambilan data dari JSON.
+1. **Membuat model kustom**
+Manfaatkan website [Quicktype](http://app.quicktype.io/) untuk membuat data JSON yang didapat dari *endpoint* `/json` pada tugas Django.
+2. **Menambahkan dependensi HTTP**
+Pada proyek Flutter, tambahkan dependensi `http` dan tambahkan kode `<uses-permission android:name="android.permission.INTERNET" />` pada `android/app/src/main/AndroidManifest.xml` untuk memperbolehkan akses internet.
+3. **Melakukan Fetch Data**
+Pada salah satu *file* `lib/screens` yang ingin melakukan *fetch* data, implementasi fungsi asinkronus dan mengirim permintaan HTTP. Contoh pada tugas kali ini yaitu:
+```dart
+// Pada album_list.dart
+Future<List<Album>> fetchAlbum() async {
+  var url = Uri.parse(
+      'https://akmal-ramadhan21.pbp.cs.ui.ac.id/get-item/');
+  var response = await http.get(
+      url,
+      headers: {"Content-Type": "application/json"},
+  );
+
+  // Melakukan decode response menjadi bentuk json
+  var data = jsonDecode(utf8.decode(response.bodyBytes));
+
+  // Melakukan konversi data json menjadi object Album
+  List<Album> list_album = [];
+  for (var d in data) {
+      if (d != null) {
+          list_album.add(Album.fromJson(d));
+      }
+  }
+  return list_album;
+}
+```
+4. **Menampilkan Data**
+Pada tugas ini, saya menampilkan data menggunakan widget `FutureBuilder` yang dimonitori nilai `future:`. Jadi, ketika fungsi `fetchAlbum()` dipanggil dan sudah selesai melakukan proses, maka `snapshot` akan berisi `list_ablbum` yang di-*return* pada fungsi tersebut. Setelah itu, `snapshot.data` ini akan diolah untuk ditampilkan pada `ListView.builder`.
+
+## Autentikasi
+Mekanisme autentikasi pengguna dijelaskan sebagai berikut.
+1. Pengguna **memasukkan data akun** yaitu `username` dan `password` pada laman `LoginPage`.
+2. Tombol *login* ditekan dan fungsi `login` pada `CookieRequest` terpanggil yang **mengirimkan HTTP *request*** dengan *endpoint* URL proyek Django.
+3. Pada Django, **dilakukan autentikasi** seperti `user = authenticate(username=username, password=password)` pada `views.py` milik `authentication`.
+4. Setelah itu dicek, **apakah `user is not None` dan `user.is_active:`**?
+5. Kembali ke Flutter, jika `request.loggedIn`, **pengguna diarahkan ke `MyHomePage`** dan muncul tampilan selamat datang menggunakan `SnackBar`.
+
+## Widget yang Digunakan
+| Widget | Fungsi | Penjelasan Implementasi |
+| --| -- | -- |
+| `TextField` | Memungkinkan pengguna memasukkan teks | Digunakan untuk memasukkan nama pengguna dan kata sandi. |
+| `FutureBuilder` | Membangun widget secara asinkron | Mengelola status loading, error, dan data yang tersedia. |
+| `ListView.builder` | Membuat daftar yang dapat discroll  | Menampilkan daftar album yang diambil |
+| `Column` | Menyusun komponen secara vertikal | Menyusun secara vertikal detail album, seperti nama, jumlah, dan deskripsi. |
+| `SizedBox` | Menambahkan ruang vertikal | Menambahkan ruang di antara berbagai informasi tentang album. |
+
+## Implementasi Tugas
+### Membuat Halaman Login dan Mengintegrasikan Sistem Autentikasi Django
+Berikut adalah mekanisme saya dalam membuat halaman login.
+1. **Siapkan Django App untuk melakukan integrasi autentikasi**
+Saya membuat aplikasi `authentication` dan juga meng-*install* *library* `corsheaders`.
+2. **Fungsi `login` pada `views.py`** 
+Pada aplikasi Django tersebut, saya membuat sebuah fungsi `login` pada `views.py` untuk menangani proses autentikasi login.
+3. **Menggunakan *package* `pbp_django_auth`**
+Install *package* `pbp_django_auth` dan modifikasi *root* widget untuk menyediakan *instance* `CookieRequest`dengan semua komponen pada proyek di dalam *file* `main.dart`
+4. **Membuat `login.dart`**
+Buat berkas baru `lib/screens/login.dart` dan isilah kode untuk menampilkan halaman *login* seperti yang sudah diajarkan di Tutorial 8.
+
+### Membuat Model Kustom
+Sudah dijelaskan di **Mekanisme Pengambilan Data JSON**. Hasil dari kode tersebut ditulis pada *file* `lib/models/album.dart`.
+
+### Membuat Halaman Daftar Album
+Daftar album ditampilkan pada file `lib/screens/album_list.dart` dimana pengambilan datanya sudah dijelaskan di **Mekanisme Pengambilan Data JSON**. Isi dari kode `album_list.dart` mirip dengan Tutorial 8 dengan beberapa perubahan (*routing* dengan halaman detail).
+
+### Membuat Halaman Detail Album
+Ketika salah satu album diklik di daftar album, maka pengguna akan diarahkan ke halaman detail pada album tersebut.
+Berikut adalah *routing* dari halaman daftar album ke detail album pada `album_list.dart`.
+```dart
+onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => AlbumDetailPage(album: snapshot.data![index]),
+    ),
+  );
+},
+```
+Saya membuat *file* `album_detail.dart` dan berikut adalah kode saya.
+```dart
+class AlbumDetailPage extends StatelessWidget {
+  final Album album;
+
+  const AlbumDetailPage({Key? key, required this.album}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        ...
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          ...
+          children: [
+            Text(
+              'Name: ${album.fields.name}',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Text('Amount: ${album.fields.amount}'),
+            SizedBox(height: 10),
+            Text('Description: ${album.fields.description}'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+## Referensi
+* PBP Ganjil 23/24 - [Tutorial 8: Flutter Networking, Authentication, and Integration](https://pbp-fasilkom-ui.github.io/ganjil-2024/docs/tutorial-8)
+* Tim Dosen PBP - Navigation, Networking, and Integration

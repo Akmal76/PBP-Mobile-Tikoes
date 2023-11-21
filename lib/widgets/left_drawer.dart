@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tikoes/screens/album_list.dart';
 import 'package:tikoes/screens/menu.dart';
-import 'package:tikoes/screens/albumlist_form.dart';
+import 'package:tikoes/screens/album_form.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -51,14 +52,25 @@ class LeftDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+              leading: const Icon(Icons.checklist),
+              title: const Text('Daftar Album'),
+              onTap: () {
+                  // Route menu ke halaman album
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AlbumPage()),
+                  );
+              },
+          ),
+          ListTile(
             leading: const Icon(Icons.add_box_outlined),
-            title: const Text('Tambah Produk'),
+            title: const Text('Tambah Album'),
             // Bagian redirection ke AlbumFormPage
             onTap: () {
               /*
               Routing ke AlbumFormPage di sini, setelah halaman AlbumFormPage sudah dibuat.
               */
-              Navigator.pushReplacement(
+              Navigator.push(
                 context, 
                 MaterialPageRoute(builder: (context) => const AlbumFormPage())
               );

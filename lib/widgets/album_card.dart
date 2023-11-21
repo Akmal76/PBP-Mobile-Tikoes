@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:tikoes/screens/albumlist_form.dart';
-import 'package:tikoes/screens/albumlist_view.dart';
-import 'package:tikoes/data/album_model.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:tikoes/screens/album_form.dart';
+import 'package:tikoes/screens/album_list.dart';
+import 'package:tikoes/screens/login.dart';
 
 class AlbumItem {
   final String name;
@@ -18,24 +20,20 @@ class AlbumCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+      final request = context.watch<CookieRequest>();
     return Material(
       child: InkWell(
         // Area responsive terhadap sentuhan
-        onTap: () {
+        onTap: () async {
           // Memunculkan SnackBar ketika diklik
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(
                 content: Text("Kamu telah menekan tombol ${item.name}!")));
-
-          // Navigate ke route yang sesuai (tergantung jenis tombol)
+                
           if (item.name == "Lihat Album") {
-            Navigator.push(
-              context, 
-              MaterialPageRoute(
-                builder: (context) => AlbumListPage(albums: albums,),
-              ),
-            );
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const AlbumPage()));
           }
           else if (item.name == "Tambah Album") {
             // Melakukan navigasi ke MaterialPageRoute yang mencakup AlbumFormPage.
@@ -46,7 +44,26 @@ class AlbumCard extends StatelessWidget {
               ),
             );
           }
-        },
+          else if (item.name == "Logout") {
+              final response = await request.logout(
+                  "https://akmal-ramadhan21-tugas.pbp.cs.ui.ac.id/auth/logout/");
+              String message = response["message"];
+              if (response['status']) {
+                String uname = response["username"];
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("$message Sampai jumpa, $uname."),
+                ));
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("$message"),
+                ));
+              }
+            }
+          },
         child: Container(
           // Container untuk menyimpan Icon dan Text
           color: item.color,
