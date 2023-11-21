@@ -515,7 +515,7 @@ Dilihat dari isi *class*-nya, menurut saya, fungsi dari *class* `CookieRequest` 
 * Menyediakan fungsi untuk inisialisasi sesi, login, dan logout yang memungkinkan aplikasi untuk melacak status login dan sesi pengguna.
 * Cookies berupa informasi sesi tersebut disimpan secara lokal.
 * Melakukan permintaan HTTP dengan metode GET dan POST.
-## `CookieRequest` pada Semua Komponen Aplikasi
+### `CookieRequest` pada Semua Komponen Aplikasi
 `CookieRequest` perlu dibagikan ke semua komponen di aplikasi Flutter agar status login atau sesi (cookies) **konsisten**. Jadi, jika status login atau sesi diubah dalam suatu komponen atau aplikasi, maka di komponen atau aplikasi lain akan berubah juga.
 
 ## Mekanisme Pengambilan Data JSON
