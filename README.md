@@ -504,6 +504,7 @@ class LeftDrawer extends StatelessWidget {
 ## Pengambilan Data JSON Tanpa Model
 **Apakah bisa kita melakukan pengambilan data JSON tanpa membuat model terlebih dahulu?**
 Ya bisa, kita dapat mengakalinya dengan menggunakan sebuah variabel yang menyimpan sebuah *dictionary* berisi data.
+
 **Apakah hal tersebut lebih baik daripada membuat model sebelum melakukan pengambilan data JSON?**
 Tidak, justru model mempermudah kita dalam melakukan pengambilan data karena dengan model kita dapat memastikan suatu objek memiliki semua nilai atribut pada kelas dibanding dengan *dictionary* yang bisa saja kita melewatkan suatu atribut.
 
